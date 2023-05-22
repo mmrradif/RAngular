@@ -1,0 +1,99 @@
+<div class="row">
+    <div class="col-10 m-auto">
+        <h2 class="text-center pt-2">All Employees</h2>
+
+        <div class="d-flex justify-content-end">
+            <a routerLink="/createEmployee" class="btn btn-primary mb-2">Add New</a>
+        </div>
+
+        <div class="mat-elevation-z8">
+
+            <mat-table [dataSource]="dataSource" matSort>
+
+                <ng-container matColumnDef="name">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Name
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.name}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="joiningDate">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Joining Date
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.joiningDate | date}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="salary">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Salary
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.salary}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="isManager">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Manager ?
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.isManager ? 'Yes':'No'}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+
+                    <mat-header-cell *matHeaderCellDef>
+                       Actions
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                       
+                        <button mat-icon-button color="primary" (click)="editEmployee(employee)">
+                            <mat-icon aria-label="Edit">edit</mat-icon>
+                        </button>
+                        
+                        <button mat-icon-button color="warn" (click)="deleteEmployee(employee.id)">
+                            <mat-icon aria-label="Delete">delete</mat-icon>
+                        </button>
+                            
+                    </mat-cell>
+
+                </ng-container>
+
+
+                <mat-header-row *matHeaderRowDef="columnList">
+
+                </mat-header-row>
+
+                <mat-row *matRowDef="let row; columns:columnList">
+
+                </mat-row>
+
+                
+            </mat-table>
+
+            <mat-paginator [pageSizeOptions]="[5,10,15,20]" pageSize="5" showFirstLastButtons="">
+
+            </mat-paginator>
+        </div>
+
+    </div>
+</div>

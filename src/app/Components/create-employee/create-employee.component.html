@@ -1,0 +1,51 @@
+<div class="outer">
+  
+    <div class="text-container p-2">
+      <h1 class="text-center">Create A New Employee</h1>
+    </div>
+    
+
+    <form class="form-container p-3" [formGroup]="employeeForm">
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name">
+        </mat-form-field>
+
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Joining Date</mat-label>
+            <input matInput [matDatepicker]="joiningDate" formControlName="joiningDate">
+            <mat-datepicker-toggle matSuffix [for]="joiningDate"></mat-datepicker-toggle>
+            <mat-datepicker #joiningDate></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Salary</mat-label>
+            <input matInput formControlName="salary">
+        </mat-form-field>
+
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Is Manager?</mat-label>
+            <mat-select formControlName="isManager">
+                <mat-option [value]="true">Yes</mat-option>
+                <mat-option [value]="false">No</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+    
+
+        <div class="f-w d-flex justify-content-between">
+
+            <button [disabled]="employeeForm.invalid" mat-raised-button type="submit" color="accent" (click)="insert()"><mat-icon>save_alt</mat-icon>Save</button>
+
+        
+            <button mat-raised-button type="button" color="primary" (click)="resetForm()"><mat-icon>refresh</mat-icon>Reset</button>
+
+            <button mat-raised-button color="primary" (click)="goToList()"><mat-icon>arrow_back</mat-icon>Back</button>
+                
+        </div>
+    </form>                 
+  
+</div>

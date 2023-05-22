@@ -1,0 +1,366 @@
+
+------------------------ Bootstrap
+
+"styles": [
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+              "src/styles.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+            ]
+
+----------------------- path
+{path:'employees', component:ViewEmployeeComponent,pathMatch:'full'},
+  {path:'createEmployee', component:CreateEmployeeComponent},
+  { path: 'editEmployee/:id', component: EditEmployeeComponent },
+  
+  {path:'**', component:ViewEmployeeComponent}
+
+----------------------- Modules
+import { HttpClientModule } from '@angular/common/http';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { ReactiveFormsModule } from '@angular/forms';
+
+
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatNativeDateModule } from '@angular/material/core';
+
+    HttpClientModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    ReactiveFormsModule,
+    MatDatepickerModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatNativeDateModule
+
+-------------------------- Class
+
+-------------------------- Service
+  private baseUrl = "http://localhost:5230/";
+
+  constructor(
+    private http:HttpClient
+  ) { }
+
+  getEmployees(): Observable<Employee[]>{
+    return this.http.get<Employee[]>(
+      `${this.baseUrl}api/Employees`
+      );
+  }
+
+  createEmployee(employee: Employee): Observable<Employee>{
+    return this.http.post<Employee>(
+      `${this.baseUrl}api/Employees`, 
+      employee
+      );
+  }
+
+  getEmployeeById(employeeId: number): Observable<Employee> {
+    return this.http.get<Employee>(
+      `${this.baseUrl}api/Employees/${employeeId}`
+      );
+  }
+
+
+  updateEmployee(employee: Employee): Observable<Employee> {
+    return this.http.put<Employee>(
+      `${this.baseUrl}api/Employees/${employee.id}`,
+      employee
+    );
+  }
+
+
+  deleteEmployee(id: number): Observable<Employee>{
+    return this.http.delete<Employee>(
+      `${this.baseUrl}api/Employees/${id}`
+      );
+  }
+
+--------------------------------- View Employee ts
+
+employees: Employee[]=[];
+  dataSource: MatTableDataSource<Employee> = new MatTableDataSource(this.employees);
+  columnList: string[]=['name','joiningDate','salary','isManager','actions'];
+  @ViewChild(MatSort, { static: false }) sort!: MatSort;
+  @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
+
+  constructor(
+    private dataSvc: EmployeeService,
+    private router: Router
+  ) { }
+
+  ngOnInit(): void {
+    this.data();
+  }
+  
+
+  deleteEmployee(employeeId: number) {
+    this.dataSvc.deleteEmployee(employeeId).subscribe(
+      () => {    
+        console.log('Employee deleted successfully.'); 
+        this.data();  
+      },
+      (error) => {       
+        console.error('An error occurred during employee deletion:', error);
+      }
+    );
+  }
+
+
+  data() {
+    try {
+      this.dataSvc.getEmployees().subscribe(x => {
+        this.employees = x;
+        this.dataSource.data = this.employees;
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+        console.log(x);
+      });
+
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  }
+
+
+
+  editEmployee(employee: Employee) {
+    
+    this.router.navigate(['/editEmployee', employee.id]);
+  }
+
+--------------------------- View Employee html
+
+<div class="row">
+    <div class="col-10 m-auto">
+        <h2 class="text-center pt-2">All Employees</h2>
+
+        <div class="d-flex justify-content-end">
+            <a routerLink="/createEmployee" class="btn btn-primary mb-2">Add New</a>
+        </div>
+
+        <div class="mat-elevation-z8">
+
+            <mat-table [dataSource]="dataSource" matSort>
+
+                <ng-container matColumnDef="name">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Name
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.name}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="joiningDate">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Joining Date
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.joiningDate | date}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="salary">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Salary
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.salary}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="isManager">
+
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>
+                        Manager ?
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                        {{employee.isManager ? 'Yes':'No'}}
+                    </mat-cell>
+
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+
+                    <mat-header-cell *matHeaderCellDef>
+                       Actions
+                    </mat-header-cell>
+
+                    <mat-cell *matCellDef="let employee">
+                       
+                        <button mat-icon-button color="primary" (click)="editEmployee(employee)">
+                            <mat-icon aria-label="Edit">edit</mat-icon>
+                        </button>
+                        
+                        <button mat-icon-button color="warn" (click)="deleteEmployee(employee.id)">
+                            <mat-icon aria-label="Delete">delete</mat-icon>
+                        </button>
+                            
+                    </mat-cell>
+
+                </ng-container>
+
+
+                <mat-header-row *matHeaderRowDef="columnList">
+
+                </mat-header-row>
+
+                <mat-row *matRowDef="let row; columns:columnList">
+
+                </mat-row>
+
+                
+            </mat-table>
+
+            <mat-paginator [pageSizeOptions]="[5,10,15,20]" pageSize="5" showFirstLastButtons="">
+
+            </mat-paginator>
+        </div>
+
+    </div>
+</div>
+
+----------------------------------- Create Employee ts
+
+  employee: Employee = new Employee();
+  employeeForm: FormGroup = new FormGroup({
+    name: new FormControl('',Validators.required),
+    joiningDate: new FormControl('',Validators.required),
+    salary: new FormControl('',Validators.required),
+    isManager: new FormControl('', Validators.required)
+  });
+
+  constructor(
+    private dataSvc: EmployeeService,
+    private router: Router
+  ) { }
+
+  ngOnInit(): void {
+  }
+
+  f(){
+    return this.employeeForm.controls;
+  }
+
+
+  insert(){
+    if(this.employeeForm.invalid) return;
+
+    this.employee.name=this.f()['name'].value;
+    this.employee.joiningDate=this.f()['joiningDate'].value;
+    this.employee.salary=this.f()['salary'].value;
+    this.employee.isManager=this.f()['isManager'].value;
+
+    try {
+      this.dataSvc.createEmployee(this.employee).subscribe(
+        (response) => {
+          console.log(response);
+          this.employeeForm.reset({});
+        },
+        (error) => {
+          console.error('An error occurred during Employee Insert', error);
+        }
+      );
+    } catch (error) {
+      console.error('An error occurred during Employee Insert', error);
+    }   
+    
+  }
+
+  resetForm(){
+    this.employeeForm.reset();
+  }
+
+  goToList() {
+    this.router.navigate(['/employees']); 
+  }
+
+----------------------------------------------- Create Employee html
+
+<div class="outer">
+  
+    <div class="text-container p-2">
+      <h1 class="text-center">Create A New Employee</h1>
+    </div>
+    
+
+    <form class="form-container p-3" [formGroup]="employeeForm">
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name">
+        </mat-form-field>
+
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Joining Date</mat-label>
+            <input matInput [matDatepicker]="joiningDate" formControlName="joiningDate">
+            <mat-datepicker-toggle matSuffix [for]="joiningDate"></mat-datepicker-toggle>
+            <mat-datepicker #joiningDate></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Salary</mat-label>
+            <input matInput formControlName="salary">
+        </mat-form-field>
+
+
+        <mat-form-field appearance="fill" class="f-w">
+            <mat-label>Is Manager?</mat-label>
+            <mat-select formControlName="isManager">
+                <mat-option [value]="true">Yes</mat-option>
+                <mat-option [value]="false">No</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+    
+
+        <div class="f-w d-flex justify-content-between">
+
+            <button [disabled]="employeeForm.invalid" mat-raised-button type="submit" color="accent" (click)="insert()"><mat-icon>save_alt</mat-icon>Save</button>
+
+        
+            <button mat-raised-button type="button" color="primary" (click)="resetForm()"><mat-icon>refresh</mat-icon>Reset</button>
+
+            <button mat-raised-button color="primary" (click)="goToList()"><mat-icon>arrow_back</mat-icon>Back</button>
+                
+        </div>
+    </form>                 
+  
+</div>
+
+----------------------------------------------- Create Employee CSS
+.form-container
+{
+    width:65%;
+    margin:2px auto 10px auto;
+    padding: 3px;
+}
+.f-w{
+    width:100%;
+    margin-bottom:.5rem;
+}
+
+.outer {
+    min-height: 100vh;
+
+}
